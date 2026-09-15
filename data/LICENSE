@@ -1,0 +1,17 @@
+The word lists and frequency counts in this directory are licensed under
+Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).
+https://creativecommons.org/licenses/by-sa/4.0/
+
+They are adapted from:
+
+- 표준국어대사전 (Standard Korean Language Dictionary), 국립국어원 (National Institute of Korean Language)
+  https://stdict.korean.go.kr/
+  License: CC BY-SA 2.0 KR
+  Changes: extracted noun headwords, removed markup and homonym numbers, filtered entries.
+
+- 한국어 위키백과 (Korean Wikipedia) database dump, Wikipedia contributors
+  https://dumps.wikimedia.org/kowiki/
+  License: CC BY-SA 4.0
+  Changes: counted noun occurrences with the Kiwi morphological analyzer.
+
+The code outside this directory is licensed under the MIT License.

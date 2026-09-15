@@ -1,0 +1,58 @@
+{
+  "name": "korean-noun",
+  "version": "0.1.0",
+  "description": "표준국어대사전 명사를 사용 빈도 순위로 랜덤 추출",
+  "keywords": [
+    "korean",
+    "hangul",
+    "noun",
+    "random",
+    "word",
+    "dictionary",
+    "한국어",
+    "명사",
+    "랜덤"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/semanticist21/korean-noun.git"
+  },
+  "license": "(MIT AND CC-BY-SA-4.0)",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./top10": {
+      "types": "./index.d.ts",
+      "default": "./src/top10.js"
+    },
+    "./top25": {
+      "types": "./index.d.ts",
+      "default": "./src/top25.js"
+    },
+    "./top50": {
+      "types": "./index.d.ts",
+      "default": "./src/top50.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "data",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "extract": "bun scripts/extract-stdict.ts",
+    "count": "uv run scripts/count_wiki.py",
+    "build:data": "bun scripts/build-data.ts",
+    "test": "bun test",
+    "e2e": "bun e2e/run.ts"
+  },
+  "devDependencies": {
+    "puppeteer-core": "25.11.0",
+    "vite": "8.3.0"
+  }
+}
