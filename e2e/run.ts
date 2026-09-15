@@ -17,8 +17,8 @@ const words = (...bands: string[]) => new Set(bands.join('\n').split('\n').map((
 const top10Words = words(t10)
 const allWords = words(t10, t25, t50, t100)
 
-function sh(cmd: string[], cwd: string) {
-  const result = Bun.spawnSync(cmd, { cwd, stdout: 'pipe', stderr: 'inherit' })
+function sh(cmd: string[], cwd: string, env: Record<string, string> = {}) {
+  const result = Bun.spawnSync(cmd, { cwd, env: { ...process.env, ...env }, stdout: 'pipe', stderr: 'inherit' })
   if (result.exitCode !== 0) throw new Error(`${cmd.join(' ')} exited ${result.exitCode}`)
   return result.stdout.toString()
 }
@@ -45,6 +45,21 @@ try {
   cpSync(join(root, 'e2e/app'), app, { recursive: true })
   await Bun.write(join(app, 'package.json'), JSON.stringify({ name: 'e2e-app', private: true, type: 'module' }))
   sh(['npm', 'install', '--no-audit', '--no-fund', join(work, packed)], app)
+
+  // Bun runtime consumer. Own transpiler cache so a broken global cache on the machine can't affect the result.
+  const bunOut = sh(
+    [
+      'bun',
+      '-e',
+      "import { noun } from 'korean-noun'; import { noun as top10 } from 'korean-noun/top10'; console.log(JSON.stringify([noun(), noun({ even: false }), top10()]))",
+    ],
+    app,
+    { BUN_RUNTIME_TRANSPILER_CACHE_PATH: join(work, 'bun-cache') },
+  )
+  const [bunFull, bunWeighted, bunTop10] = JSON.parse(bunOut)
+  assert(allWords.has(bunFull) && allWords.has(bunWeighted), `bun: unexpected words ${bunOut}`)
+  assert(top10Words.has(bunTop10), `bun: ${bunTop10} not in top 10%`)
+  console.log('bun runtime ok', bunOut.trim())
 
   const vite = join(root, 'node_modules/.bin/vite')
   sh([vite, 'build'], app)
