@@ -49,7 +49,7 @@ nouns(5)                                  // 서로 다른 5개
 nouns(3, { top: 0.1, length: 2, even: false })
 ```
 
-같은 옵션을 받고, 중복 없이 뽑은 순서대로 돌려줍니다. `even: false`면 빈도 비례로 하나씩 뽑고 뺀 결과입니다. 조건에 맞는 단어가 `count`보다 적으면 `RangeError`를 던집니다.
+같은 옵션을 받고, 중복 없이 뽑은 순서대로 돌려줍니다. `even: false`면 빈도 비례로 하나씩 뽑고 뺀 결과입니다. 조건에 맞는 단어가 `count`보다 적으면 `RangeError`를 던집니다. `count`가 0이면 옵션만 검사하고, 맞는 단어가 없어도 `[]`를 돌려줍니다.
 
 ### 결과 재현하기
 
@@ -73,7 +73,7 @@ nouns(3, { random })
 ### 에러
 
 - `RangeError`: 값 범위가 잘못됐거나(`top`, 글자 수, 한글이 아닌 `startsWith`, `random()` 반환값), 조건에 맞는 단어가 없거나, `nouns`의 `count`가 맞는 단어 수보다 많을 때.
-- `TypeError`: 모르는 옵션 이름(오타 포함), 타입이 틀린 값, `length`를 `minLength`/`maxLength`와 같이 줄 때.
+- `TypeError`: 옵션이 일반 객체가 아닐 때, 모르는 옵션 이름(오타 포함), 타입이 틀린 값(`top: '0.5'` 등), `length`를 `minLength`/`maxLength`와 같이 줄 때.
 
 ## 단어 세트 고르기
 

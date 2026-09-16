@@ -99,10 +99,12 @@ export function create(chunks) {
   }
 
   function nouns(count, options) {
+    const o = parseOptions(options)
+    if (typeof count !== 'number') throw new TypeError('count must be a number')
     if (!Number.isInteger(count) || count < 0) {
       throw new RangeError(`count must be an integer >= 0, got ${count}`)
     }
-    const o = parseOptions(options)
+    if (count === 0) return []
     const n = rankLimit(o.top)
     const ranks =
       o.lengthFiltered || o.textFiltered
@@ -166,15 +168,28 @@ export function create(chunks) {
   return { noun, nouns }
 }
 
-function parseOptions(options = {}) {
+function parseOptions(options) {
+  if (options === undefined) options = {}
+  const proto = options !== null && typeof options === 'object' ? Object.getPrototypeOf(options) : undefined
+  if (Array.isArray(options) || (proto !== Object.prototype && proto !== null)) {
+    throw new TypeError('options must be an object')
+  }
   for (const key of Object.keys(options)) {
     if (!OPTION_KEYS.has(key)) throw new TypeError(`unknown option: ${key}`)
   }
   const { top = 1, even = true, length, startsWith, endsWith, batchim, random = Math.random } = options
   let { minLength, maxLength } = options
 
+  if (typeof top !== 'number') throw new TypeError('top must be a number')
   if (!(top > 0 && top <= 1)) throw new RangeError(`top must be in (0, 1], got ${top}`)
   if (typeof even !== 'boolean') throw new TypeError('even must be a boolean')
+  for (const [name, value] of [
+    ['length', length],
+    ['minLength', minLength],
+    ['maxLength', maxLength],
+  ]) {
+    if (value !== undefined && typeof value !== 'number') throw new TypeError(`${name} must be a number`)
+  }
   if (length !== undefined) {
     if (minLength !== undefined || maxLength !== undefined) {
       throw new TypeError('length cannot be combined with minLength or maxLength')

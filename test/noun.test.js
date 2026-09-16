@@ -109,6 +109,25 @@ describe('text options', () => {
 })
 
 describe('option validation', () => {
+  test('options must be a plain object', () => {
+    for (const bad of [3, '가', [], null, Object.create({ length: 3 }), Object.create({ top: 0.5 })]) {
+      expect(() => noun(bad)).toThrow(TypeError)
+      expect(() => nouns(1, bad)).toThrow(TypeError)
+    }
+    const bare = Object.create(null)
+    bare.top = 0.5
+    expect(noun({ ...bare, random: fixed(0.999) })).toBe('나')
+    bare.random = fixed(0.999)
+    expect(noun(bare)).toBe('나')
+  })
+
+  test('numeric options must be numbers', () => {
+    for (const top of ['0.5', true, [0.5]]) expect(() => noun({ top })).toThrow(TypeError)
+    expect(() => noun({ length: '3' })).toThrow(TypeError)
+    expect(() => noun({ minLength: '1' })).toThrow(TypeError)
+    expect(() => noun({ maxLength: null })).toThrow(TypeError)
+  })
+
   test('unknown keys and wrong types', () => {
     expect(() => noun({ lenght: 3 })).toThrow(TypeError)
     expect(() => nouns(1, { startWith: '가' })).toThrow(TypeError)
@@ -125,8 +144,22 @@ describe('option validation', () => {
 })
 
 describe('nouns', () => {
+  test('count 0 returns [] without scanning or drawing', () => {
+    let calls = 0
+    const random = () => {
+      calls++
+      return 0.5
+    }
+    expect(nouns(0, { even: false, random })).toEqual([])
+    expect(nouns(0, { startsWith: '력' })).toEqual([])
+    expect(calls).toBe(0)
+    expect(() => nouns(0, { top: 2 })).toThrow(RangeError)
+  })
+
   test('count validation', () => {
     expect(nouns(0)).toEqual([])
+    expect(() => nouns('3')).toThrow(TypeError)
+    expect(() => nouns(-1, { bad: 1 })).toThrow(TypeError)
     expect(() => nouns(-1)).toThrow(RangeError)
     expect(() => nouns(1.5)).toThrow(RangeError)
     expect(() => nouns(5)).toThrow(RangeError)

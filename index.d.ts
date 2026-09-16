@@ -29,5 +29,6 @@ export function noun(options?: NounOptions): string
 /**
  * Returns `count` distinct random nouns in selection order. With `even: false`, picks are weighted
  * successive sampling without replacement. Throws `RangeError` if fewer than `count` nouns match.
+ * `count` 0 returns `[]` after validating options, even when no noun would match.
  */
 export function nouns(count: number, options?: NounOptions): string[]
