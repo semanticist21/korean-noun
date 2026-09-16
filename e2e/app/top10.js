@@ -1,4 +1,4 @@
-import { noun } from 'korean-noun/top10'
+import { noun, nouns } from 'korean-noun/top10'
 
 let error = null
 try {
@@ -10,5 +10,6 @@ document.getElementById('out').textContent = JSON.stringify({
   words: [noun(), noun({ even: false })],
   half: noun({ top: 0.5 }),
   three: noun({ length: 3, even: false }),
+  many: nouns(5, { startsWith: '가', even: false }),
   error,
 })

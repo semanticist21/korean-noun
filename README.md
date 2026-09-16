@@ -23,16 +23,57 @@ noun({ top: 0.5, even: false }) // 상위 50% 안에서, 자주 쓰는 단어일
 | `length` | - | 정확한 글자(음절) 수. `minLength`/`maxLength`와 같이 쓸 수 없습니다. |
 | `minLength` | - | 최소 글자 수 (포함). |
 | `maxLength` | - | 최대 글자 수 (포함). |
+| `startsWith` | - | 이 음절(들)로 시작. 한글 음절만 받습니다. |
+| `endsWith` | - | 이 음절(들)로 끝남. |
+| `batchim` | - | `true`면 마지막 글자에 받침 있음, `false`면 없음. |
+| `random` | `Math.random` | `[0, 1)` 난수를 돌려주는 함수. 결과를 재현할 때 씁니다. |
 
-`top`으로 빈도 범위를 먼저 자르고, 그 안에서 글자 수 조건에 맞는 단어를 뽑습니다.
+`top`으로 빈도 범위를 먼저 자르고, 나머지 조건은 그 안에서 모두 AND로 적용합니다.
 
 ```js
-noun({ length: 3 })                           // 3글자
-noun({ top: 0.2, minLength: 2, maxLength: 4 }) // 상위 20% 중 2~4글자
-noun({ length: 2, even: false })              // 2글자, 빈도 비례
+noun({ length: 3 })                             // 3글자
+noun({ top: 0.2, minLength: 2, maxLength: 4 })  // 상위 20% 중 2~4글자
+noun({ startsWith: '가', batchim: false })      // '가'로 시작하고 받침 없음
+noun({ endsWith: '기', even: false })           // '기'로 끝남, 빈도 비례
 ```
 
-옵션 값이 잘못됐거나 조건에 맞는 단어가 없으면 `RangeError`, `length`를 `minLength`/`maxLength`와 같이 주면 `TypeError`를 던집니다.
+- `startsWith`는 글자 그대로 비교합니다. 끝말잇기의 두음법칙(력→역)은 직접 처리해야 합니다. 어떤 단어도 시작하지 않는 음절(예: `'력'`, `'름'`)이면 `RangeError`가 납니다.
+- `batchim`은 ㄹ 받침도 받침으로 셉니다. '(으)로'처럼 ㄹ을 받침 없음으로 다루는 조사는 따로 처리하세요.
+
+### 여러 개 뽑기
+
+```js
+import { nouns } from 'korean-noun'
+
+nouns(5)                                  // 서로 다른 5개
+nouns(3, { top: 0.1, length: 2, even: false })
+```
+
+같은 옵션을 받고, 중복 없이 뽑은 순서대로 돌려줍니다. `even: false`면 빈도 비례로 하나씩 뽑고 뺀 결과입니다. 조건에 맞는 단어가 `count`보다 적으면 `RangeError`를 던집니다.
+
+### 결과 재현하기
+
+```js
+function mulberry32(seed) {
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+const random = mulberry32(42)
+noun({ random })
+nouns(3, { random })
+```
+
+같은 `random` 순서면 같은 패키지 버전 안에서 같은 결과가 나옵니다. 데이터가 바뀌는 버전 사이에서는 달라질 수 있습니다. `nouns(n)`과 `noun()`을 n번 부른 결과는 같지 않습니다.
+
+### 에러
+
+- `RangeError`: 값 범위가 잘못됐거나(`top`, 글자 수, 한글이 아닌 `startsWith`, `random()` 반환값), 조건에 맞는 단어가 없거나, `nouns`의 `count`가 맞는 단어 수보다 많을 때.
+- `TypeError`: 모르는 옵션 이름(오타 포함), 타입이 틀린 값, `length`를 `minLength`/`maxLength`와 같이 줄 때.
 
 ## 단어 세트 고르기
 

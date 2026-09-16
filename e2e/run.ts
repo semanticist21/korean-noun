@@ -53,7 +53,7 @@ try {
     [
       'bun',
       '-e',
-      "import { noun } from 'korean-noun'; import { noun as top10 } from 'korean-noun/top10'; console.log(JSON.stringify([noun(), noun({ even: false }), top10()]))",
+      "import { noun } from 'korean-noun'; import { nouns as top10 } from 'korean-noun/top10'; console.log(JSON.stringify([noun(), noun({ even: false, batchim: true }), top10(1)[0]]))",
     ],
     app,
     { BUN_RUNTIME_TRANSPILER_CACHE_PATH: join(work, 'bun-cache') },
@@ -102,6 +102,10 @@ try {
   assert(top10.words.every((w: string) => top10Words.has(w)), `top10.html: unexpected words ${top10.words}`)
   assert(top5Words.has(top10.half), `top10.html: top 0.5 gave ${top10.half}, outside top half of top10 set`)
   assert(top10.three.length === 3 && top10Words.has(top10.three), `top10.html: length 3 gave ${top10.three}`)
+  assert(
+    new Set(top10.many).size === 5 && top10.many.every((w: string) => w.startsWith('가') && top10Words.has(w)),
+    `top10.html: nouns gave ${top10.many}`,
+  )
   assert(top10.error === 'RangeError', `top10.html: expected RangeError for top 1.5, got ${top10.error}`)
 
   console.log('e2e ok', { full, top10 })

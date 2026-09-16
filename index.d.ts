@@ -9,11 +9,25 @@ export interface NounOptions {
   minLength?: number
   /** Maximum number of syllables, inclusive. */
   maxLength?: number
+  /** Word starts with these Hangul syllables. Literal match (no 두음법칙). */
+  startsWith?: string
+  /** Word ends with these Hangul syllables. */
+  endsWith?: string
+  /** `true`: last syllable has a final consonant (받침), `false`: it has none. ㄹ counts as 받침. */
+  batchim?: boolean
+  /** Random source returning numbers in [0, 1). Defaults to `Math.random`. */
+  random?: () => number
 }
 
 /**
- * Returns a random Korean noun. `top` picks the frequency range first, then length options filter within it.
- * Throws `RangeError` for out-of-range options or when no noun matches,
- * `TypeError` when `length` is combined with `minLength`/`maxLength`.
+ * Returns a random Korean noun. `top` cuts the frequency range first; the other filters apply within it.
+ * Throws `RangeError` for invalid values or when no noun matches, `TypeError` for wrong types,
+ * unknown option keys, or `length` combined with `minLength`/`maxLength`.
  */
 export function noun(options?: NounOptions): string
+
+/**
+ * Returns `count` distinct random nouns in selection order. With `even: false`, picks are weighted
+ * successive sampling without replacement. Throws `RangeError` if fewer than `count` nouns match.
+ */
+export function nouns(count: number, options?: NounOptions): string[]
