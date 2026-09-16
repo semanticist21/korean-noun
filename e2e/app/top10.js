@@ -9,5 +9,6 @@ try {
 document.getElementById('out').textContent = JSON.stringify({
   words: [noun(), noun({ even: false })],
   half: noun({ top: 0.5 }),
+  three: noun({ length: 3, even: false }),
   error,
 })

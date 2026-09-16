@@ -101,6 +101,7 @@ try {
   const top10 = await read('top10.html')
   assert(top10.words.every((w: string) => top10Words.has(w)), `top10.html: unexpected words ${top10.words}`)
   assert(top5Words.has(top10.half), `top10.html: top 0.5 gave ${top10.half}, outside top half of top10 set`)
+  assert(top10.three.length === 3 && top10Words.has(top10.three), `top10.html: length 3 gave ${top10.three}`)
   assert(top10.error === 'RangeError', `top10.html: expected RangeError for top 1.5, got ${top10.error}`)
 
   console.log('e2e ok', { full, top10 })

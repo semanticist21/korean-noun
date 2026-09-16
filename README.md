@@ -20,8 +20,19 @@ noun({ top: 0.5, even: false }) // 상위 50% 안에서, 자주 쓰는 단어일
 |---|---|---|
 | `top` | `1` | `(0, 1]`. import한 단어 세트 안에서 빈도 상위 몇 %까지 뽑을지. |
 | `even` | `true` | `true`면 범위 안에서 균등, `false`면 사용 빈도에 비례. |
+| `length` | - | 정확한 글자(음절) 수. `minLength`/`maxLength`와 같이 쓸 수 없습니다. |
+| `minLength` | - | 최소 글자 수 (포함). |
+| `maxLength` | - | 최대 글자 수 (포함). |
 
-`top`이 `(0, 1]`을 벗어나면 `RangeError`를 던집니다.
+`top`으로 빈도 범위를 먼저 자르고, 그 안에서 글자 수 조건에 맞는 단어를 뽑습니다.
+
+```js
+noun({ length: 3 })                           // 3글자
+noun({ top: 0.2, minLength: 2, maxLength: 4 }) // 상위 20% 중 2~4글자
+noun({ length: 2, even: false })              // 2글자, 빈도 비례
+```
+
+옵션 값이 잘못됐거나 조건에 맞는 단어가 없으면 `RangeError`, `length`를 `minLength`/`maxLength`와 같이 주면 `TypeError`를 던집니다.
 
 ## 단어 세트 고르기
 

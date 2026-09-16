@@ -55,3 +55,14 @@ test('top is relative to each entry set', () => {
   expect(top10({ top: 0.5 })).toBe(last(size(0.1) * 0.5))
   expect(top10({ top: 0.5, even: false })).toBe(last(size(0.1) * 0.5))
 })
+
+test('length options on real data stay within set and length', () => {
+  const top10Words = new Set(t10.split('\n').map((line) => line.split('\t')[0]))
+  for (let i = 0; i < 500; i++) {
+    const exact = top10({ length: 3, even: i % 2 === 0 })
+    expect(exact.length).toBe(3)
+    expect(top10Words.has(exact)).toBe(true)
+    const ranged = full({ minLength: 2, maxLength: 4, top: 0.3 })
+    expect(ranged.length >= 2 && ranged.length <= 4).toBe(true)
+  }
+})
