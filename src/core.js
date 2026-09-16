@@ -199,7 +199,8 @@ function parseOptions(options) {
   const min = minLength ?? 1
   const max = maxLength ?? Number.POSITIVE_INFINITY
   if (!isCount(min) || !(isCount(max) || max === Number.POSITIVE_INFINITY) || min > max) {
-    throw new RangeError(`invalid length range: ${minLength ?? length}..${maxLength ?? length}`)
+    const detail = length !== undefined ? `length ${length}` : `minLength ${min}, maxLength ${max}`
+    throw new RangeError(`invalid length range: ${detail}`)
   }
   for (const [name, value] of [
     ['startsWith', startsWith],

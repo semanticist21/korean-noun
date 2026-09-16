@@ -67,6 +67,8 @@ describe('length options', () => {
     expect(() => byLength({ length: 0 })).toThrow(RangeError)
     expect(() => byLength({ length: 1.5 })).toThrow(RangeError)
     expect(() => byLength({ minLength: 3, maxLength: 2 })).toThrow(RangeError)
+    expect(() => byLength({ maxLength: 0 })).toThrow('invalid length range: minLength 1, maxLength 0')
+    expect(() => byLength({ length: Number.NaN })).toThrow('invalid length range: length NaN')
     expect(() => byLength({ length: 2, minLength: 1 })).toThrow(TypeError)
   })
 })
