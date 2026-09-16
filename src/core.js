@@ -145,7 +145,7 @@ export function create(chunks) {
         }
         keys[i] = key
         items[i] = rank
-      } else if (count > 0 && key > keys[0]) {
+      } else if (key > keys[0]) {
         let i = 0
         while (true) {
           const left = 2 * i + 1

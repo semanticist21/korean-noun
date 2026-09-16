@@ -1,3 +1,7 @@
+/**
+ * Options must be a plain object (prototype `Object.prototype` or `null`);
+ * objects created in another realm (iframe, `vm` context) are rejected with `TypeError`.
+ */
 export interface NounOptions {
   /** Pick from the top fraction, in (0, 1], of this entry's nouns by usage frequency. Defaults to 1. */
   top?: number

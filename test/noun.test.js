@@ -177,6 +177,32 @@ describe('nouns', () => {
     expect(new Set(nouns(4, { even: false })).size).toBe(4)
   })
 
+  test('weighted pairs match successive sampling probabilities', () => {
+    // weights 3, 3, 2, 2 → smallest ordered-pair probability 0.05
+    const weights = { 갑: 3, 을: 3, 병: 2, 정: 2 }
+    const { nouns: pairs } = create([Object.entries(weights).map(([w, f]) => `${w}\t${f}`).join('\n')])
+    let seed = 20260916
+    const random = () => {
+      seed = (seed + 0x6d2b79f5) | 0
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+    }
+    const runs = 50_000
+    const seen = new Map()
+    for (let i = 0; i < runs; i++) {
+      const key = pairs(2, { even: false, random }).join()
+      seen.set(key, (seen.get(key) ?? 0) + 1)
+    }
+    for (const [a, wa] of Object.entries(weights)) {
+      for (const [b, wb] of Object.entries(weights)) {
+        if (a === b) continue
+        const expected = (wa / 10) * (wb / (10 - wa))
+        expect(Math.abs((seen.get(`${a},${b}`) ?? 0) / runs - expected)).toBeLessThan(0.01)
+      }
+    }
+  })
+
   test('weighted first pick follows frequency', () => {
     let hits = 0
     const trials = 20_000
