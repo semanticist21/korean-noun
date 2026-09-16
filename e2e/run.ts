@@ -13,9 +13,11 @@ const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Conte
 const PORT = 4179
 const root = resolve(import.meta.dir, '..')
 
-const words = (...bands: string[]) => new Set(bands.join('\n').split('\n').map((line) => line.split('\t')[0]))
-const top10Words = words(t10)
-const allWords = words(t10, t25, t50, t100)
+const list = (...bands: string[]) => bands.join('\n').split('\n').map((line) => line.split('\t')[0])
+const top10List = list(t10)
+const top10Words = new Set(top10List)
+const top5Words = new Set(top10List.slice(0, Math.floor(top10List.length / 2)))
+const allWords = new Set(list(t10, t25, t50, t100))
 
 function sh(cmd: string[], cwd: string, env: Record<string, string> = {}) {
   const result = Bun.spawnSync(cmd, { cwd, env: { ...process.env, ...env }, stdout: 'pipe', stderr: 'inherit' })
@@ -98,7 +100,8 @@ try {
 
   const top10 = await read('top10.html')
   assert(top10.words.every((w: string) => top10Words.has(w)), `top10.html: unexpected words ${top10.words}`)
-  assert(top10.error === 'RangeError', `top10.html: expected RangeError, got ${top10.error}`)
+  assert(top5Words.has(top10.half), `top10.html: top 0.5 gave ${top10.half}, outside top half of top10 set`)
+  assert(top10.error === 'RangeError', `top10.html: expected RangeError for top 1.5, got ${top10.error}`)
 
   console.log('e2e ok', { full, top10 })
 } finally {

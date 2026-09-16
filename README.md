@@ -18,30 +18,31 @@ noun({ top: 0.5, even: false }) // 상위 50% 안에서, 자주 쓰는 단어일
 
 | 옵션 | 기본값 | 설명 |
 |---|---|---|
-| `top` | 진입점 최대값 | `(0, 1]`. 빈도 상위 몇 %까지 뽑을지. 어느 진입점에서든 전체 목록 기준입니다. |
+| `top` | `1` | `(0, 1]`. import한 단어 세트 안에서 빈도 상위 몇 %까지 뽑을지. |
 | `even` | `true` | `true`면 범위 안에서 균등, `false`면 사용 빈도에 비례. |
 
-범위를 벗어난 `top`은 `RangeError`를 던집니다.
+`top`이 `(0, 1]`을 벗어나면 `RangeError`를 던집니다.
 
-## 번들 크기 줄이기
+## 단어 세트 고르기
 
-필요한 범위까지만 데이터를 담은 진입점을 import하면 나머지 데이터는 번들에 들어가지 않습니다.
+import 경로마다 담긴 단어 세트가 다르고, `top`은 그 세트 안에서의 비율입니다. 작은 세트를 import하면 나머지 데이터는 번들에 들어가지 않습니다.
 
-| import | 담긴 범위 | `top` 허용 |
+| import | 단어 세트 | 번들 크기 (Vite) |
 |---|---|---|
-| `korean-noun` | 전체 | `(0, 1]` |
-| `korean-noun/top50` | 상위 50% | `(0, 0.5]` |
-| `korean-noun/top25` | 상위 25% | `(0, 0.25]` |
-| `korean-noun/top10` | 상위 10% | `(0, 0.1]` |
+| `korean-noun` | 전체 10만 개 | 약 1.3MB |
+| `korean-noun/top50` | 빈도 상위 50% | 약 0.65MB |
+| `korean-noun/top25` | 빈도 상위 25% | 약 0.33MB |
+| `korean-noun/top10` | 빈도 상위 10% | 약 0.13MB |
 
 ```js
 import { noun } from 'korean-noun/top10'
 
-noun()             // 상위 10% 안에서
-noun({ top: 0.5 }) // RangeError
+noun()                           // 상위 10% 세트에서
+noun({ top: 0.5 })               // 상위 10% 세트의 상위 절반 (전체 기준 상위 5%)
+noun({ top: 0.5, even: false })  // 위 범위에서 빈도 비례
 ```
 
-ESM 전용이며 Node, 브라우저, 번들러에서 동기로 동작합니다. 데이터는 첫 호출 때 한 번 파싱합니다.
+ESM 패키지이며 Node, 브라우저, 번들러에서 동기로 동작합니다. CommonJS는 `require(esm)`을 지원하는 Node 20.19+ / 22.12+에서 `require('korean-noun')`로 쓸 수 있습니다. 데이터는 첫 호출 때 한 번 파싱합니다.
 
 ## 데이터
 

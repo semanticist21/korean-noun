@@ -1,9 +1,7 @@
 /**
  * @param {string[]} chunks rank bands, each `word\tfreq` lines sorted by freq desc
- * @param {number} max largest `top` this entry has data for
- * @param {number} total word count of the full list; `top` is relative to it
  */
-export function create(chunks, max, total) {
+export function create(chunks) {
   let words, cum
 
   function load() {
@@ -18,12 +16,10 @@ export function create(chunks, max, total) {
     }
   }
 
-  return function noun({ top = max, even = true } = {}) {
-    if (!(top > 0 && top <= max)) {
-      throw new RangeError(`top must be in (0, ${max}] for this entry, got ${top}`)
-    }
+  return function noun({ top = 1, even = true } = {}) {
+    if (!(top > 0 && top <= 1)) throw new RangeError(`top must be in (0, 1], got ${top}`)
     if (!words) load()
-    const n = Math.min(words.length, Math.max(1, Math.floor(total * top)))
+    const n = Math.max(1, Math.floor(words.length * top))
     if (even) return words[Math.floor(Math.random() * n)]
 
     const r = Math.random() * cum[n - 1]

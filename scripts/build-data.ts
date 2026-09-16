@@ -30,6 +30,5 @@ for (const [name, fraction] of BANDS) {
   await Bun.write(`data/${name}.js`, `${HEADER}export default \`${body}\`\n`)
   start = end
 }
-await Bun.write('data/meta.js', `${HEADER}export const TOTAL = ${total}\n`)
 
 console.log(`total ${total}`)

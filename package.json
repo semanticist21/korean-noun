@@ -1,6 +1,6 @@
 {
   "name": "korean-noun",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "표준국어대사전 명사를 사용 빈도 순위로 랜덤 추출",
   "keywords": [
     "korean",
