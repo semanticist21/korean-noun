@@ -1,5 +1,5 @@
-// CC BY-SA 4.0. See data/LICENSE.
-export default `사용	405061
+/*! CC BY-SA 4.0. See data/LICENSE. */
+const data: string = `사용	405061
 미국	302494
 이후	292852
 때	279825
@@ -9999,3 +9999,4 @@ export default `사용	405061
 기함	798
 성부	798
 시간적	798`
+export default data

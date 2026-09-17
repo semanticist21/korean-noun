@@ -1,5 +1,5 @@
-// CC BY-SA 4.0. See data/LICENSE.
-export default `분재	140
+/*! CC BY-SA 4.0. See data/LICENSE. */
+const data: string = `분재	140
 불경기	140
 빈자	140
 빨판	140
@@ -24999,3 +24999,4 @@ export default `분재	140
 공명현	22
 공병감	22
 공북루	22`
+export default data

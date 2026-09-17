@@ -1,12 +1,12 @@
 import { expect, test } from 'bun:test'
-import t10 from '../data/t10.js'
-import t25 from '../data/t25.js'
-import t50 from '../data/t50.js'
-import t100 from '../data/t100.js'
-import { noun as full, nouns as fullMany } from '../src/index.js'
-import { noun as top10, nouns as top10Many } from '../src/top10.js'
-import { noun as top25 } from '../src/top25.js'
-import { noun as top50 } from '../src/top50.js'
+import t10 from '../src/data/t10.ts'
+import t25 from '../src/data/t25.ts'
+import t50 from '../src/data/t50.ts'
+import t100 from '../src/data/t100.ts'
+import { noun as full, nouns as fullMany } from '../src/index.ts'
+import { noun as top10, nouns as top10Many } from '../src/top10.ts'
+import { noun as top25 } from '../src/top25.ts'
+import { noun as top50 } from '../src/top50.ts'
 
 const bands = [t10, t25, t50, t100]
 const rows = bands.join('\n').split('\n').map((line) => line.split('\t'))
@@ -40,8 +40,8 @@ test('rows are unique hangul words with positive counts sorted desc', () => {
 
 test('top is relative to each entry set', () => {
   const random = () => 1 - Number.EPSILON
-  const last = (count) => rows[Math.max(1, Math.floor(count)) - 1][0]
-  const size = (fraction) => Math.floor(total * fraction)
+  const last = (count: number) => rows[Math.max(1, Math.floor(count)) - 1][0]
+  const size = (fraction: number) => Math.floor(total * fraction)
 
   expect(full({ random })).toBe(last(total))
   expect(top50({ random })).toBe(last(size(0.5)))

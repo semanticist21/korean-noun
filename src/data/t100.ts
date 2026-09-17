@@ -1,5 +1,5 @@
-// CC BY-SA 4.0. See data/LICENSE.
-export default `관미성	22
+/*! CC BY-SA 4.0. See data/LICENSE. */
+const data: string = `관미성	22
 광디스크	22
 광상곡	22
 광전관	22
@@ -49999,3 +49999,4 @@ export default `관미성	22
 꺾임	1
 껄떼기	1
 껍질샘	1`
+export default data

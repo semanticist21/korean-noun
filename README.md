@@ -119,4 +119,4 @@ bun run build:data
 ## 라이선스
 
 - 코드: MIT
-- `data/`: CC BY-SA 4.0. 국립국어원 표준국어대사전(CC BY-SA 2.0 KR)과 한국어 위키백과(CC BY-SA 4.0)를 가공했습니다. 자세한 출처는 [data/LICENSE](data/LICENSE)를 보세요.
+- `src/data/` (배포본 `dist/data/`): CC BY-SA 4.0. 국립국어원 표준국어대사전(CC BY-SA 2.0 KR)과 한국어 위키백과(CC BY-SA 4.0)를 가공했습니다. 자세한 출처는 [src/data/LICENSE](src/data/LICENSE)를 보세요.

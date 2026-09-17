@@ -1,3 +1,50 @@
+/**
+ * Options must be a plain object (prototype `Object.prototype` or `null`);
+ * objects created in another realm (iframe, `vm` context) are rejected with `TypeError`.
+ */
+export interface NounOptions {
+  /** Pick from the top fraction, in (0, 1], of this entry's nouns by usage frequency. Defaults to 1. */
+  top?: number
+  /** `true`: every noun in range is equally likely. `false`: weighted by usage frequency. Defaults to `true`. */
+  even?: boolean
+  /** Exact number of syllables. Cannot be combined with `minLength` or `maxLength`. */
+  length?: number
+  /** Minimum number of syllables, inclusive. */
+  minLength?: number
+  /** Maximum number of syllables, inclusive. */
+  maxLength?: number
+  /** Word starts with these Hangul syllables. Literal match (no 두음법칙). */
+  startsWith?: string
+  /** Word ends with these Hangul syllables. */
+  endsWith?: string
+  /** `true`: last syllable has a final consonant (받침), `false`: it has none. ㄹ counts as 받침. */
+  batchim?: boolean
+  /** Random source returning numbers in [0, 1). Defaults to `Math.random`. */
+  random?: () => number
+}
+
+export interface NounApi {
+  /**
+   * Returns a random Korean noun. `top` cuts the frequency range first; the other filters apply within it.
+   * Throws `RangeError` for invalid values or when no noun matches, `TypeError` for wrong types,
+   * unknown option keys, or `length` combined with `minLength`/`maxLength`.
+   */
+  noun(options?: NounOptions): string
+  /**
+   * Returns `count` distinct random nouns in selection order. With `even: false`, picks are weighted
+   * successive sampling without replacement. Throws `RangeError` if fewer than `count` nouns match.
+   * `count` 0 returns `[]` after validating options, even when no noun would match.
+   */
+  nouns(count: number, options?: NounOptions): string[]
+}
+
+interface Bucket {
+  index: Uint32Array
+  sums: Float64Array
+}
+
+type Sums = ArrayLike<number>
+
 const OPTION_KEYS = new Set([
   'top',
   'even',
@@ -11,11 +58,11 @@ const OPTION_KEYS = new Set([
 ])
 const HANGUL = /^[가-힣]+$/
 
-/**
- * @param {string[]} chunks rank bands, each `word\tfreq` lines sorted by freq desc
- */
-export function create(chunks) {
-  let words, cum, buckets
+/** @param chunks rank bands, each `word\tfreq` lines sorted by freq desc */
+export function create(chunks: readonly string[]): NounApi {
+  let words: string[]
+  let cum: Float64Array
+  let buckets: Bucket[]
 
   function load() {
     const lines = chunks.filter(Boolean).join('\n').split('\n')
@@ -29,11 +76,11 @@ export function create(chunks) {
     }
   }
 
-  const freq = (rank) => cum[rank] - (rank ? cum[rank - 1] : 0)
+  const freq = (rank: number): number => cum[rank] - (rank ? cum[rank - 1] : 0)
 
   // buckets[length] = ranks of words with that length (ascending) and their running freq sums
   function loadBuckets() {
-    const groups = []
+    const groups: number[][] = []
     for (let i = 0; i < words.length; i++) (groups[words[i].length] ??= []).push(i)
     buckets = groups.map((ranks) => {
       const index = Uint32Array.from(ranks)
@@ -44,18 +91,18 @@ export function create(chunks) {
     })
   }
 
-  function rankLimit(top) {
+  function rankLimit(top: number): number {
     if (!words) load()
     return Math.max(1, Math.floor(words.length * top))
   }
 
-  function candidates(o, n) {
-    const ranks = []
+  function candidates(o: ParsedOptions, n: number): number[] {
+    const ranks: number[] = []
     for (let i = 0; i < n; i++) if (o.match(words[i])) ranks.push(i)
     return ranks
   }
 
-  function noun(options) {
+  function noun(options?: NounOptions): string {
     const o = parseOptions(options)
     const n = rankLimit(o.top)
 
@@ -65,7 +112,7 @@ export function create(chunks) {
 
     if (!o.textFiltered) {
       if (!buckets) loadBuckets()
-      const parts = []
+      const parts: { bucket: Bucket; count: number; weight: number }[] = []
       let total = 0
       for (let len = o.min; len <= Math.min(o.max, buckets.length - 1); len++) {
         const bucket = buckets[len]
@@ -98,7 +145,7 @@ export function create(chunks) {
     return words[ranks[search(sums, ranks.length, o.random() * sum)]]
   }
 
-  function nouns(count, options) {
+  function nouns(count: number, options?: NounOptions): string[] {
     const o = parseOptions(options)
     if (typeof count !== 'number') throw new TypeError('count must be a number')
     if (!Number.isInteger(count) || count < 0) {
@@ -116,7 +163,7 @@ export function create(chunks) {
 
     if (o.even) {
       // partial Fisher–Yates
-      const picked = []
+      const picked: string[] = []
       for (let i = 0; i < count; i++) {
         const j = i + Math.floor(o.random() * (ranks.length - i))
         const rank = ranks[j]
@@ -168,7 +215,9 @@ export function create(chunks) {
   return { noun, nouns }
 }
 
-function parseOptions(options) {
+type ParsedOptions = ReturnType<typeof parseOptions>
+
+function parseOptions(options: NounOptions | undefined) {
   if (options === undefined) options = {}
   const proto = options !== null && typeof options === 'object' ? Object.getPrototypeOf(options) : undefined
   if (Array.isArray(options) || (proto !== Object.prototype && proto !== null)) {
@@ -227,7 +276,7 @@ function parseOptions(options) {
       }
       return r
     },
-    match: (word) =>
+    match: (word: string): boolean =>
       word.length >= min &&
       word.length <= max &&
       (startsWith === undefined || word.startsWith(startsWith)) &&
@@ -236,20 +285,20 @@ function parseOptions(options) {
   }
 }
 
-function hasBatchim(word) {
+function hasBatchim(word: string): boolean {
   return (word.charCodeAt(word.length - 1) - 0xac00) % 28 !== 0
 }
 
-function isCount(value) {
+function isCount(value: number): boolean {
   return Number.isInteger(value) && value >= 1
 }
 
-function noMatch() {
+function noMatch(): RangeError {
   return new RangeError('no noun matches the given options')
 }
 
 // first j < count with sums[j] > r, else count - 1
-function search(sums, count, r) {
+function search(sums: Sums, count: number, r: number): number {
   let lo = 0
   let hi = count - 1
   while (lo < hi) {
@@ -261,7 +310,7 @@ function search(sums, count, r) {
 }
 
 // number of sorted values < limit
-function countBelow(sorted, limit) {
+function countBelow(sorted: Sums, limit: number): number {
   let lo = 0
   let hi = sorted.length
   while (lo < hi) {

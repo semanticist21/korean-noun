@@ -1,5 +1,5 @@
-// CC BY-SA 4.0. See data/LICENSE.
-export default `우호적	798
+/*! CC BY-SA 4.0. See data/LICENSE. */
+const data: string = `우호적	798
 컨디션	798
 봉분	797
 지휘봉	797
@@ -14999,3 +14999,4 @@ export default `우호적	798
 병인박해	140
 본위제	140
 부족미	140`
+export default data

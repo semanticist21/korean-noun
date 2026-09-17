@@ -1,6 +1,6 @@
 {
   "name": "korean-noun",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "표준국어대사전 명사를 사용 빈도 순위로 랜덤 추출",
   "keywords": [
     "korean",
@@ -22,29 +22,30 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./index.d.ts",
-      "default": "./src/index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./top10": {
-      "types": "./index.d.ts",
-      "default": "./src/top10.js"
+      "types": "./dist/top10.d.ts",
+      "default": "./dist/top10.js"
     },
     "./top25": {
-      "types": "./index.d.ts",
-      "default": "./src/top25.js"
+      "types": "./dist/top25.d.ts",
+      "default": "./dist/top25.js"
     },
     "./top50": {
-      "types": "./index.d.ts",
-      "default": "./src/top50.js"
+      "types": "./dist/top50.d.ts",
+      "default": "./dist/top50.js"
     },
     "./package.json": "./package.json"
   },
   "files": [
-    "src",
-    "data",
-    "index.d.ts"
+    "dist"
   ],
   "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "prepack": "bun run build",
     "extract": "bun scripts/extract-stdict.ts",
     "count": "uv run scripts/count_wiki.py",
     "build:data": "bun scripts/build-data.ts",
@@ -52,7 +53,10 @@
     "e2e": "bun e2e/run.ts"
   },
   "devDependencies": {
+    "@types/bun": "1.4.2",
     "puppeteer-core": "25.11.0",
+    "tsdown": "0.23.0",
+    "typescript": "7.0.2",
     "vite": "8.3.0"
   }
 }

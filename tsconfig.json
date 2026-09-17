@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["es2023", "dom"],
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "strict": true,
+    "isolatedDeclarations": true,
+    "moduleDetection": "force",
+    "declaration": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "types": ["bun"]
+  },
+  "include": ["src", "test", "scripts", "e2e"],
+  "exclude": ["e2e/app"]
+}

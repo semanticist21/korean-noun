@@ -1,4 +1,4 @@
-// build/wiki-counts.tsv → data/*.js rank bands
+// build/wiki-counts.tsv → src/data/*.ts rank bands
 const LIMIT = 100_000
 const BANDS = [
   ['t10', 0.1],
@@ -6,7 +6,7 @@ const BANDS = [
   ['t50', 0.5],
   ['t100', 1],
 ] as const
-const HEADER = '// CC BY-SA 4.0. See data/LICENSE.\n'
+const HEADER = '/*! CC BY-SA 4.0. See data/LICENSE. */\n'
 
 const rows = (await Bun.file('build/wiki-counts.tsv').text())
   .trim()
@@ -27,7 +27,7 @@ for (const [name, fraction] of BANDS) {
     .slice(start, end)
     .map((row) => `${row.word}\t${row.count}`)
     .join('\n')
-  await Bun.write(`data/${name}.js`, `${HEADER}export default \`${body}\`\n`)
+  await Bun.write(`src/data/${name}.ts`, `${HEADER}const data: string = \`${body}\`\nexport default data\n`)
   start = end
 }
 

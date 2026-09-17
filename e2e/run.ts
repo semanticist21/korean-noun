@@ -4,10 +4,10 @@ import { cpSync, mkdtempSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import puppeteer from 'puppeteer-core'
-import t10 from '../data/t10.js'
-import t25 from '../data/t25.js'
-import t50 from '../data/t50.js'
-import t100 from '../data/t100.js'
+import t10 from '../src/data/t10.ts'
+import t25 from '../src/data/t25.ts'
+import t50 from '../src/data/t50.ts'
+import t100 from '../src/data/t100.ts'
 
 const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 const PORT = 4179
@@ -62,6 +62,51 @@ try {
   assert(allWords.has(bunFull) && allWords.has(bunWeighted), `bun: unexpected words ${bunOut}`)
   assert(top10Words.has(bunTop10), `bun: ${bunTop10} not in top 10%`)
   console.log('bun runtime ok', bunOut.trim())
+
+  // Node consumers: ESM import and CommonJS require(esm).
+  const nodeOut = sh(
+    [
+      'node',
+      '--input-type=module',
+      '-e',
+      "import { createRequire } from 'node:module'; import { noun } from 'korean-noun'; const { nouns } = createRequire(import.meta.url)('korean-noun/top10'); console.log(JSON.stringify([noun(), nouns(1)[0]]))",
+    ],
+    app,
+  )
+  const [nodeFull, nodeTop10] = JSON.parse(nodeOut)
+  assert(allWords.has(nodeFull), `node: unexpected word ${nodeFull}`)
+  assert(top10Words.has(nodeTop10), `node require: ${nodeTop10} not in top 10%`)
+  console.log('node runtime ok', nodeOut.trim())
+
+  // TypeScript consumer resolves the published declarations.
+  await Bun.write(
+    join(app, 'types.ts'),
+    `import { noun, type NounOptions } from 'korean-noun'
+import { nouns } from 'korean-noun/top10'
+const options: NounOptions = { length: 2, batchim: true }
+const word: string = noun(options)
+const words: string[] = nouns(2, { even: false })
+// @ts-expect-error top must be a number
+noun({ top: '0.5' })
+export { word, words }
+`,
+  )
+  sh(
+    [
+      join(root, 'node_modules/.bin/tsc'),
+      '--noEmit',
+      '--strict',
+      '--module',
+      'nodenext',
+      '--moduleResolution',
+      'nodenext',
+      '--types',
+      '',
+      'types.ts',
+    ],
+    app,
+  )
+  console.log('typescript consumer ok')
 
   const vite = join(root, 'node_modules/.bin/vite')
   sh([vite, 'build'], app)

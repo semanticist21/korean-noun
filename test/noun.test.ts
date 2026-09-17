@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
-import { create } from '../src/core.js'
+import { create } from '../src/core.ts'
 
-const fixed = (value) => () => value
+const fixed = (value: unknown) => () => value as number
 
 // cumulative freq: 60, 80, 90, 100
 const { noun, nouns } = create(['가\t60\n나\t20', '다\t10\n라\t10'])
@@ -102,10 +102,12 @@ describe('text options', () => {
   })
 
   test('rejects invalid text options', () => {
+    // @ts-expect-error invalid on purpose
     expect(() => byText({ startsWith: 1 })).toThrow(TypeError)
     expect(() => byText({ endsWith: '' })).toThrow(RangeError)
     expect(() => byText({ startsWith: 'ㄱ' })).toThrow(RangeError)
     expect(() => byText({ startsWith: '력' })).toThrow(RangeError)
+    // @ts-expect-error invalid on purpose
     expect(() => byText({ batchim: 'yes' })).toThrow(TypeError)
   })
 })
@@ -124,19 +126,27 @@ describe('option validation', () => {
   })
 
   test('numeric options must be numbers', () => {
+    // @ts-expect-error invalid on purpose
     for (const top of ['0.5', true, [0.5]]) expect(() => noun({ top })).toThrow(TypeError)
+    // @ts-expect-error invalid on purpose
     expect(() => noun({ length: '3' })).toThrow(TypeError)
+    // @ts-expect-error invalid on purpose
     expect(() => noun({ minLength: '1' })).toThrow(TypeError)
+    // @ts-expect-error invalid on purpose
     expect(() => noun({ maxLength: null })).toThrow(TypeError)
   })
 
   test('unknown keys and wrong types', () => {
+    // @ts-expect-error invalid on purpose
     expect(() => noun({ lenght: 3 })).toThrow(TypeError)
+    // @ts-expect-error invalid on purpose
     expect(() => nouns(1, { startWith: '가' })).toThrow(TypeError)
+    // @ts-expect-error invalid on purpose
     expect(() => noun({ even: 'no' })).toThrow(TypeError)
   })
 
   test('random', () => {
+    // @ts-expect-error invalid on purpose
     expect(() => noun({ random: 0.5 })).toThrow(TypeError)
     expect(() => noun({ random: fixed(1) })).toThrow(RangeError)
     expect(() => noun({ random: fixed(Number.NaN) })).toThrow(RangeError)
@@ -160,7 +170,9 @@ describe('nouns', () => {
 
   test('count validation', () => {
     expect(nouns(0)).toEqual([])
+    // @ts-expect-error invalid on purpose
     expect(() => nouns('3')).toThrow(TypeError)
+    // @ts-expect-error invalid on purpose
     expect(() => nouns(-1, { bad: 1 })).toThrow(TypeError)
     expect(() => nouns(-1)).toThrow(RangeError)
     expect(() => nouns(1.5)).toThrow(RangeError)
